@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Control de Gasoil</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',sans-serif;background:#f4f1ec;color:#2c2720;-webkit-font-smoothing:antialiased;}
+.app{max-width:880px;margin:0 auto;padding:0 0 40px;}
+
+/* SETUP */
+.setup{max-width:560px;margin:60px auto;padding:0 20px;}
+.setup h1{font-family:'Oswald',sans-serif;font-size:28px;text-transform:uppercase;margin-bottom:6px;}
+.setup .sub{color:#6b6358;font-size:14px;margin-bottom:28px;line-height:1.6;}
+.setup .step{background:#fff;border:1px solid #ddd7cd;border-radius:8px;padding:18px 20px;margin-bottom:14px;}
+.setup .step-n{font-family:'Oswald',sans-serif;font-size:13px;color:#c0841a;text-transform:uppercase;margin-bottom:6px;}
+.setup .step p{font-size:13.5px;color:#2c2720;line-height:1.6;}
+.setup .step a{color:#3e6f96;font-weight:600;}
+.setup .step code{background:#f4f1ec;padding:2px 6px;border-radius:3px;font-family:'JetBrains Mono',monospace;font-size:12px;}
+.setup input[type=text]{font-family:'JetBrains Mono',monospace;font-size:14px;background:#fff;border:1px solid #ddd7cd;border-radius:6px;color:#2c2720;padding:12px 14px;width:100%;margin-top:14px;}
+.setup input[type=text]:focus{border-color:#c0841a;outline:none;}
+.setup .go-btn{font-family:'Oswald',sans-serif;font-weight:600;font-size:16px;text-transform:uppercase;background:#c0841a;color:#fff;border:none;border-radius:6px;padding:14px 28px;cursor:pointer;width:100%;margin-top:16px;}
+.setup .go-btn:hover{background:#a87218;}
+.setup .err{color:#b5391e;font-size:13px;margin-top:8px;display:none;}
+
+/* HEADER */
+.header{padding:24px 20px 0;}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c0841a;margin-bottom:6px;}
+.title-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.title{font-family:'Oswald',sans-serif;font-weight:600;font-size:26px;text-transform:uppercase;}
+.api-tag{font-family:'JetBrains Mono',monospace;font-size:10px;color:#9a9285;background:#e8e4dd;padding:3px 8px;border-radius:99px;}
+
+.tabs{display:flex;border-bottom:2px solid #ddd7cd;padding:0 20px;margin-top:18px;position:sticky;top:0;background:#f4f1ec;z-index:10;}
+.tab{font-family:'Oswald',sans-serif;font-size:14px;font-weight:500;text-transform:uppercase;letter-spacing:.05em;background:none;border:none;color:#9a9285;padding:12px 20px 10px;cursor:pointer;position:relative;}
+.tab:hover{color:#6b6358;} .tab.active{color:#c0841a;}
+.tab.active::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:#c0841a;}
+
+.tab-body{display:none;padding:20px;} .tab-body.active{display:block;}
+
+.notice{display:none;font-size:13px;padding:9px 14px;border-radius:6px;margin:12px 20px 0;}
+.notice.show{display:block;}
+.notice.error{background:#f5d6ce;border:1px solid #b5391e;color:#6e1a0a;}
+.notice.ok{background:#d4ece6;border:1px solid #2e7d6e;color:#1a4d42;}
+
+.panel{background:#fff;border:1px solid #ddd7cd;border-radius:6px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.panel-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9a9285;margin-bottom:14px;}
+
+.gauge-wrap{display:flex;justify-content:center;}
+.gauge-wrap svg{width:100%;max-width:320px;height:auto;}
+.zone-label{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#9a9285;}
+.gauge-readout{text-align:center;margin-top:-6px;}
+.readout-value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:34px;}
+.readout-unit{font-size:12px;color:#6b6358;margin-top:-2px;}
+.readout-status{font-family:'Oswald',sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.03em;margin-top:10px;padding:6px 0;}
+.zone-normal{color:#2e7d6e;} .zone-alto{color:#b5391e;} .zone-bajo{color:#3e6f96;} .zone-wait{color:#9a9285;}
+
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.stat-card{background:#f9f7f4;border:1px solid #ddd7cd;border-radius:6px;padding:13px 14px;}
+.stat-num{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:19px;}
+.stat-label{font-size:11px;color:#9a9285;margin-top:3px;}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr);}}
+
+.chart-scroll{overflow-x:auto;} .chart-empty{color:#9a9285;font-size:13px;padding:18px 4px;}
+
+.top-bar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+.add-btn{display:flex;align-items:center;gap:8px;font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;text-transform:uppercase;letter-spacing:.03em;background:#c0841a;color:#fff;border:none;border-radius:6px;padding:13px 22px;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);}
+.add-btn:hover{background:#a87218;}
+.save-status{font-family:'JetBrains Mono',monospace;font-size:11px;color:#9a9285;}
+
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:100;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;}
+.modal{background:#fff;border:1px solid #ddd7cd;border-radius:8px;width:100%;max-width:420px;padding:28px 24px 24px;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);}
+.modal-title{font-family:'Oswald',sans-serif;font-weight:600;font-size:20px;text-transform:uppercase;margin-bottom:20px;}
+.modal-close{position:absolute;top:14px;right:14px;background:none;border:none;color:#9a9285;font-size:22px;cursor:pointer;}
+.modal-close:hover{color:#2c2720;}
+.modal-fields{display:flex;flex-direction:column;gap:16px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:12px;color:#6b6358;}
+.field .opt{color:#9a9285;font-style:italic;}
+.field input{font-family:'JetBrains Mono',monospace;font-size:14px;background:#f9f7f4;border:1px solid #ddd7cd;border-radius:6px;color:#2c2720;padding:10px 12px;width:100%;}
+.field input:focus{border-color:#c0841a;outline:none;}
+.modal-submit{font-family:'Oswald',sans-serif;font-weight:600;font-size:15px;text-transform:uppercase;background:#c0841a;color:#fff;border:none;border-radius:6px;padding:12px 20px;cursor:pointer;width:100%;margin-top:6px;}
+.modal-submit:hover{background:#a87218;}
+
+.table-scroll{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;min-width:780px;}
+th{text-align:left;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:#9a9285;border-bottom:2px solid #ddd7cd;padding:8px;font-weight:500;}
+td{padding:6px 8px;border-bottom:1px solid #ddd7cd;font-family:'JetBrains Mono',monospace;vertical-align:middle;}
+tr:hover{background:#f9f7f4;}
+td input.cell{font-family:'JetBrains Mono',monospace;font-size:13px;background:#f9f7f4;border:1px solid #ddd7cd;border-radius:4px;color:#2c2720;padding:5px 6px;width:100%;min-width:70px;}
+td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
+.cell-ro{color:#9a9285;}
+.chip{font-family:'Inter',sans-serif;font-size:11px;font-weight:600;padding:3px 8px;border-radius:99px;display:inline-block;}
+.chip.zone-normal{background:#d4ece6;color:#2e7d6e;} .chip.zone-alto{background:#f5d6ce;color:#b5391e;}
+.chip.zone-bajo{background:#d4e4f0;color:#3e6f96;} .chip.zone-wait{background:#e8e4dd;color:#9a9285;}
+.del-btn{background:none;border:1px solid #ddd7cd;color:#9a9285;border-radius:6px;width:26px;height:26px;cursor:pointer;font-size:14px;}
+.del-btn:hover{color:#b5391e;border-color:#b5391e;background:#f5d6ce;}
+.empty{color:#9a9285;font-size:13.5px;padding:10px 2px;}
+.footer-row{display:flex;justify-content:space-between;align-items:center;margin-top:14px;flex-wrap:wrap;gap:10px;}
+.link-btn{background:none;border:none;color:#9a9285;font-size:12px;cursor:pointer;text-decoration:underline;padding:0;font-family:'Inter',sans-serif;}
+.link-btn:hover{color:#2c2720;}
+.hint{font-size:11.5px;color:#9a9285;margin-top:10px;}
+</style>
+</head>
+<body>
+
+<!-- ========== SETUP SCREEN ========== -->
+<div class="setup" id="setupScreen">
+  <h1>Control de Gasoil</h1>
+  <p class="sub">Para que los datos se guarden y se compartan, necesitas crear un almacén online gratuito. Solo hay que hacerlo una vez, son 30 segundos.</p>
+
+  <div class="step">
+    <div class="step-n">Paso 1</div>
+    <p>Abre este enlace en otra pestaña:<br><a href="https://www.npoint.io/" target="_blank">https://www.npoint.io</a></p>
+  </div>
+  <div class="step">
+    <div class="step-n">Paso 2</div>
+    <p>En el cuadro grande que aparece, borra todo y escribe solo: <code>[]</code><br>Luego pulsa el botón verde <strong>"Save"</strong>.</p>
+  </div>
+  <div class="step">
+    <div class="step-n">Paso 3</div>
+    <p>Te saldrá una dirección tipo: <code>https://api.npoint.io/abc123def456</code><br>Copia esa dirección completa y pégala aquí abajo:</p>
+  </div>
+
+  <input type="text" id="apiUrlInput" placeholder="https://api.npoint.io/tu-codigo-aqui">
+  <div class="err" id="setupErr">La dirección no parece correcta. Debe empezar por https://api.npoint.io/</div>
+  <button type="button" class="go-btn" id="setupGo">Conectar y empezar</button>
+</div>
+
+<!-- ========== MAIN APP ========== -->
+<div class="app" id="mainApp" style="display:none;">
+  <div class="header">
+    <p class="eyebrow">Almacén · Generador diésel</p>
+    <div class="title-row">
+      <h1 class="title">Control de gasoil</h1>
+      <span class="api-tag" id="apiTag"></span>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="dashboard">Análisis</button>
+    <button class="tab" data-tab="historico">Histórico</button>
+  </div>
+  <div class="notice" id="notice"></div>
+
+  <div class="tab-body active" data-tab="dashboard">
+    <div class="top-bar">
+      <button type="button" class="add-btn" id="openModal">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="5" x2="9" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Nueva recarga
+      </button>
+      <span class="save-status" id="saveStatus"></span>
+    </div>
+    <div class="panel">
+      <p class="panel-label">Estado de consumo</p>
+      <div class="gauge-wrap">
+        <svg viewBox="0 0 340 190" xmlns="http://www.w3.org/2000/svg">
+          <path d="M55,170 A115,115 0 0 1 106.1,74.4" stroke="#3e6f96" stroke-width="18" fill="none"/>
+          <path d="M106.1,74.4 A115,115 0 0 1 233.9,74.4" stroke="#2e7d6e" stroke-width="18" fill="none"/>
+          <path d="M233.9,74.4 A115,115 0 0 1 285,170" stroke="#b5391e" stroke-width="18" fill="none"/>
+          <circle cx="55" cy="170" r="9" fill="#3e6f96"/><circle cx="285" cy="170" r="9" fill="#b5391e"/>
+          <text class="zone-label" x="30" y="186" text-anchor="middle">BAJO</text>
+          <text class="zone-label" x="170" y="28" text-anchor="middle">NORMAL</text>
+          <text class="zone-label" x="310" y="186" text-anchor="middle">ALTO</text>
+          <g id="needle" transform="rotate(0 170 170)"><line x1="170" y1="170" x2="170" y2="72" stroke="#c0841a" stroke-width="3" stroke-linecap="round"/></g>
+          <circle cx="170" cy="170" r="7" fill="#c0841a" stroke="#fff" stroke-width="2"/>
+        </svg>
+      </div>
+      <div class="gauge-readout">
+        <div class="readout-value" id="readoutVal">&mdash;</div>
+        <div class="readout-unit">L/día estimados · última recarga</div>
+        <div class="readout-status zone-wait" id="readoutStatus">Registra recargas para empezar</div>
+      </div>
+    </div>
+    <div class="panel"><p class="panel-label">Consumo</p><div class="stats">
+      <div class="stat-card"><div class="stat-num" id="sTotal">0 L</div><div class="stat-label">Litros registrados</div></div>
+      <div class="stat-card"><div class="stat-num" id="sCount">0</div><div class="stat-label">Recargas</div></div>
+      <div class="stat-card"><div class="stat-num" id="sAvg">&mdash;</div><div class="stat-label">Media L/día</div></div>
+    </div></div>
+    <div class="panel"><p class="panel-label">Gasto</p><div class="stats">
+      <div class="stat-card"><div class="stat-num" id="sGT">&mdash;</div><div class="stat-label">Gasto total</div></div>
+      <div class="stat-card"><div class="stat-num" id="sGA">&mdash;</div><div class="stat-label">Media por recarga</div></div>
+      <div class="stat-card"><div class="stat-num" id="sEL">&mdash;</div><div class="stat-label">Precio medio €/L</div></div>
+    </div></div>
+    <div class="panel"><p class="panel-label">Histórico de consumo (L/día)</p><div class="chart-scroll" id="chart"><div class="chart-empty">El gráfico aparecerá con al menos 2 recargas.</div></div></div>
+  </div>
+
+  <div class="tab-body" data-tab="historico">
+    <div class="panel">
+      <p class="panel-label">Registro completo</p>
+      <div class="table-scroll"><table id="tbl"><thead><tr><th>#</th><th>Fecha</th><th>Litros</th><th>Coste €</th><th>€/L</th><th>Intervalo</th><th>Consumo</th><th>Estado</th><th></th></tr></thead><tbody id="tbody"></tbody></table></div>
+      <div id="emptyLog" class="empty">Aún no hay recargas.</div>
+      <p class="hint">Edita fecha, litros o coste directamente en la tabla. Se guarda automáticamente.</p>
+      <div class="footer-row">
+        <button type="button" class="link-btn" id="csvBtn">Exportar CSV</button>
+        <button type="button" class="link-btn" id="resetBtn" style="color:#b5391e;">Borrar todo</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <button type="button" class="modal-close" id="closeModal">&times;</button>
+      <h2 class="modal-title">Nueva recarga</h2>
+      <div class="modal-fields">
+        <div class="field"><label>Fecha</label><input type="date" id="mDate"></div>
+        <div class="field"><label>Litros</label><input type="number" id="mLit" step="0.1" min="0.1" placeholder="2500"></div>
+        <div class="field"><label>Coste € <span class="opt">(opcional)</span></label><input type="number" id="mCost" step="0.01" min="0" placeholder="350.00"></div>
+        <button type="button" class="modal-submit" id="submitBtn">Añadir recarga</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var API_URL = '';
+  var entries = [];
+  var BZ = 0.75;
+  var $=function(id){return document.getElementById(id);};
+
+  /* ===== SETUP ===== */
+  function getHashApi(){
+    var h=location.hash;
+    var m=h.match(/api=([^&]+)/);
+    return m?decodeURIComponent(m[1]):'';
+  }
+  function setHashApi(url){
+    location.hash='api='+encodeURIComponent(url);
+  }
+
+  var setupUrl = getHashApi();
+  if(setupUrl && setupUrl.indexOf('https://api.npoint.io/')===0){
+    API_URL = setupUrl;
+    startApp();
+  } else {
+    $('setupScreen').style.display = 'block';
+  }
+
+  $('setupGo').addEventListener('click',function(){
+    var val = $('apiUrlInput').value.trim();
+    if(val.indexOf('https://api.npoint.io/')!==0 || val.length < 30){
+      $('setupErr').style.display='block'; return;
+    }
+    $('setupErr').style.display='none';
+    API_URL = val;
+    setHashApi(val);
+    startApp();
+  });
+
+  function startApp(){
+    $('setupScreen').style.display='none';
+    $('mainApp').style.display='block';
+    $('apiTag').textContent='Conectado';
+    initApp();
+  }
+
+  /* ===== APP ===== */
+  function initApp(){
+    // Tabs
+    var tabs=document.querySelectorAll('.tab'),bods=document.querySelectorAll('.tab-body');
+    for(var t=0;t<tabs.length;t++){(function(tb){tb.addEventListener('click',function(){
+      for(var i=0;i<tabs.length;i++){tabs[i].classList.toggle('active',tabs[i]===tb);bods[i].classList.toggle('active',bods[i].getAttribute('data-tab')===tb.getAttribute('data-tab'));bods[i].style.display=bods[i].classList.contains('active')?'block':'none';}
+    });})(tabs[t]);}
+
+    // Modal
+    function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+    function openM(){$('mDate').value=todayStr();$('mLit').value='';$('mCost').value='';$('overlay').classList.add('open');setTimeout(function(){$('mLit').focus();},80);}
+    function closeM(){$('overlay').classList.remove('open');}
+    $('openModal').addEventListener('click',openM);
+    $('closeModal').addEventListener('click',closeM);
+    $('overlay').addEventListener('click',function(e){if(e.target===$('overlay'))closeM();});
+
+    var nT=null;
+    function showNotice(msg,type){if(nT)clearTimeout(nT);$('notice').textContent=msg;$('notice').className='notice show '+type;nT=setTimeout(function(){$('notice').className='notice';},4000);}
+    function setSt(msg){$('saveStatus').textContent=msg;}
+
+    function fmtD(iso){var p=iso.split('-');return p[2]+'/'+p[1]+'/'+p[0];}
+    function fmtS(iso){var p=iso.split('-');return p[2]+'/'+p[1];}
+    function fmtE(n){return n.toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2})+' \u20ac';}
+    function dayD(a,b){return Math.round((new Date(b)-new Date(a))/864e5);}
+    function clZ(z){if(z===null)return'wait';if(z>BZ)return'alto';if(z<-BZ)return'bajo';return'normal';}
+    function zTx(z){if(z==='alto')return'Por encima \u2014 revisa el generador';if(z==='bajo')return'Por debajo de tu media';if(z==='normal')return'Dentro de tu media';return'Registra recargas para empezar';}
+
+    function compute(){
+      var sorted=entries.slice().sort(function(a,b){return a.date<b.date?-1:(a.date>b.date?1:0);});
+      var rows=[],rates=[];
+      for(var i=0;i<sorted.length;i++){var e=sorted[i],intD=null,rate=null;
+        if(i>0){var d=dayD(sorted[i-1].date,e.date);if(d>0){intD=d;rate=e.liters/d;rates.push(rate);}}
+        var ppl=(e.cost&&e.liters)?e.cost/e.liters:null;
+        rows.push({id:e.id,idx:i+1,date:e.date,liters:e.liters,cost:e.cost||null,ppl:ppl,intD:intD,rate:rate});}
+      var mean=null,std=null;
+      if(rates.length>=2){var s=0;for(var r=0;r<rates.length;r++)s+=rates[r];mean=s/rates.length;var v=0;for(var r2=0;r2<rates.length;r2++)v+=(rates[r2]-mean)*(rates[r2]-mean);std=Math.sqrt(v/rates.length);}
+      else if(rates.length===1){mean=rates[0];std=0;}
+      for(var k=0;k<rows.length;k++){var rw=rows[k];if(rw.rate===null||mean===null||rates.length<2)rw.zone=null;else{var zv=std===0?0:(rw.rate-mean)/std;rw.zone=clZ(zv);}}
+      var tL=0,tC=0,tLwc=0,cc=0;
+      for(var m=0;m<entries.length;m++){tL+=entries[m].liters;if(entries[m].cost&&entries[m].cost>0){tC+=entries[m].cost;tLwc+=entries[m].liters;cc++;}}
+      return{rows:rows,mean:mean,std:std,totalL:tL,totalC:tC,hasCosts:cc>0,avgCost:cc>0?tC/cc:null,avgEurL:tLwc>0?tC/tLwc:null,reliable:rates.length>=2};
+    }
+
+    function render(){
+      var c=compute(),rows=c.rows;
+      $('sTotal').textContent=c.totalL.toFixed(1).replace(/\.0$/,'')+' L';
+      $('sCount').textContent=String(entries.length);
+      $('sAvg').textContent=(c.mean!==null&&c.reliable)?c.mean.toFixed(1)+' L':'\u2014';
+      $('sGT').textContent=c.hasCosts?fmtE(c.totalC):'\u2014';
+      $('sGA').textContent=c.avgCost!==null?fmtE(c.avgCost):'\u2014';
+      $('sEL').textContent=c.avgEurL!==null?c.avgEurL.toFixed(3)+' \u20ac':'\u2014';
+      var last=rows.length?rows[rows.length-1]:null;
+      $('readoutVal').textContent=(last&&last.rate!==null)?last.rate.toFixed(1):'\u2014';
+      var zone=(last&&c.reliable)?last.zone:null;
+      var deg=0;
+      if(zone&&c.std!==null){var zz=c.std===0?0:(last.rate-c.mean)/c.std;zz=Math.max(-2,Math.min(2,zz));deg=zz*45;}
+      $('needle').setAttribute('transform','rotate('+deg+' 170 170)');
+      $('readoutStatus').textContent=zone?zTx(zone):(entries.length===0?'Registra recargas para empezar':'Necesitas m\u00e1s recargas');
+      $('readoutStatus').className='readout-status zone-'+(zone||'wait');
+      renderChart(c);renderTable(rows);
+    }
+
+    function renderChart(c){
+      var rated=[];for(var i=0;i<c.rows.length;i++)if(c.rows[i].rate!==null)rated.push(c.rows[i]);
+      if(!rated.length){$('chart').innerHTML='<div class="chart-empty">El gr\u00e1fico aparecer\u00e1 con al menos 2 recargas.</div>';return;}
+      var step=46,bW=22,lP=28,rP=18,w=Math.max(320,lP+rP+rated.length*step),h=150,bl=112,pH=78;
+      var mx=rated[0].rate;for(var j=1;j<rated.length;j++)if(rated[j].rate>mx)mx=rated[j].rate;
+      if(c.mean!==null&&c.mean>mx)mx=c.mean;mx=mx*1.2||1;
+      var cols={normal:'#2e7d6e',alto:'#b5391e',bajo:'#3e6f96',wait:'#9a9285'};var bars='';
+      for(var k=0;k<rated.length;k++){var r=rated[k],x=lP+k*step,bh=(r.rate/mx)*pH,y=bl-bh;
+        bars+='<rect x="'+x+'" y="'+y+'" width="'+bW+'" height="'+bh+'" fill="'+cols[r.zone||'wait']+'" rx="2"/>';
+        bars+='<text x="'+(x+bW/2)+'" y="'+(y-6)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#6b6358">'+r.rate.toFixed(1)+'</text>';
+        bars+='<text x="'+(x+bW/2)+'" y="'+(bl+16)+'" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="9" fill="#9a9285">'+fmtS(r.date)+'</text>';}
+      var avg='';
+      if(c.mean!==null){var ay=bl-(c.mean/mx)*pH;avg='<line x1="'+lP+'" y1="'+ay+'" x2="'+(w-rP)+'" y2="'+ay+'" stroke="#c0841a" stroke-width="1.5" stroke-dasharray="4 4"/><text x="'+(w-rP)+'" y="'+(ay-5)+'" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="9.5" fill="#c0841a">media '+c.mean.toFixed(1)+'</text>';}
+      $('chart').innerHTML='<svg viewBox="0 0 '+w+' '+h+'" width="'+w+'" height="'+h+'" xmlns="http://www.w3.org/2000/svg"><line x1="'+lP+'" y1="'+bl+'" x2="'+(w-rP)+'" y2="'+bl+'" stroke="#ddd7cd" stroke-width="1"/>'+bars+avg+'</svg>';
+    }
+
+    function findE(id){for(var i=0;i<entries.length;i++)if(entries[i].id===id)return entries[i];return null;}
+    function onCell(id,field,val){
+      var e=findE(id);if(!e)return;
+      if(field==='date'){if(!val)return;e.date=val;}
+      else if(field==='liters'){var v=parseFloat(val);if(!v||v<=0)return;e.liters=v;}
+      else if(field==='cost'){var cv=parseFloat(val);if(isNaN(cv)||cv<=0)delete e.cost;else e.cost=cv;}
+      render();save();
+    }
+
+    function renderTable(rows){
+      if(!rows.length){$('tbl').style.display='none';$('emptyLog').style.display='block';return;}
+      $('tbl').style.display='';$('emptyLog').style.display='none';var html='';
+      for(var i=rows.length-1;i>=0;i--){var r=rows[i],zc='zone-'+(r.zone||'wait'),zl=r.zone==='alto'?'Alto':r.zone==='bajo'?'Bajo':r.zone==='normal'?'Normal':'\u2014';
+        html+='<tr><td>'+r.idx+'</td>';
+        html+='<td><input type="date" class="cell" data-id="'+r.id+'" data-f="date" value="'+r.date+'"></td>';
+        html+='<td><input type="number" class="cell" data-id="'+r.id+'" data-f="liters" step="0.1" value="'+r.liters+'"></td>';
+        html+='<td><input type="number" class="cell" data-id="'+r.id+'" data-f="cost" step="0.01" value="'+(r.cost!==null?r.cost:'')+'"></td>';
+        html+='<td class="cell-ro">'+(r.ppl!==null?r.ppl.toFixed(3)+' \u20ac':'\u2014')+'</td>';
+        html+='<td class="cell-ro">'+(r.intD!==null?r.intD+' d':'\u2014')+'</td>';
+        html+='<td class="cell-ro">'+(r.rate!==null?r.rate.toFixed(1)+' L/d':'\u2014')+'</td>';
+        html+='<td><span class="chip '+zc+'">'+zl+'</span></td>';
+        html+='<td><button class="del-btn" data-id="'+r.id+'">\u00d7</button></td></tr>';}
+      $('tbody').innerHTML=html;
+      var inputs=$('tbody').querySelectorAll('.cell');
+      for(var b=0;b<inputs.length;b++){(function(inp){inp.addEventListener('change',function(){onCell(inp.getAttribute('data-id'),inp.getAttribute('data-f'),inp.value);});})(inputs[b]);}
+      var btns=$('tbody').querySelectorAll('.del-btn');
+      for(var d=0;d<btns.length;d++){(function(btn){btn.addEventListener('click',function(){deleteE(btn.getAttribute('data-id'));});})(btns[d]);}
+    }
+
+    /* === API === */
+    function save(){
+      setSt('Guardando...');
+      fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entries)})
+      .then(function(r){if(!r.ok)throw new Error();return r.json();})
+      .then(function(){setSt('\u2713 Guardado ('+entries.length+')');})
+      .catch(function(){setSt('\u26a0 Error al guardar — reintentando...');setTimeout(save,3000);});
+    }
+    function load(){
+      setSt('Cargando datos...');
+      fetch(API_URL)
+      .then(function(r){if(!r.ok)throw new Error();return r.json();})
+      .then(function(data){
+        if(Array.isArray(data)){entries=data;setSt('\u2713 '+entries.length+' registros');}
+        else{entries=[];setSt('Sin registros');}
+        render();
+      })
+      .catch(function(){setSt('\u26a0 Error al cargar');render();});
+    }
+
+    function addE(date,liters,cost){
+      var e={id:'e'+Date.now()+Math.random().toString(36).slice(2,7),date:date,liters:liters};
+      if(cost&&cost>0)e.cost=cost;entries.push(e);render();save();
+    }
+    function deleteE(id){var n=[];for(var i=0;i<entries.length;i++)if(entries[i].id!==id)n.push(entries[i]);entries=n;render();save();}
+
+    function exportCsv(){
+      var c=compute(),lines=['numero,fecha,litros,coste_eur,eur_litro,intervalo_dias,consumo_l_dia,estado'];
+      for(var i=0;i<c.rows.length;i++){var r=c.rows[i];lines.push([r.idx,r.date,r.liters,r.cost!==null?r.cost.toFixed(2):'',r.ppl!==null?r.ppl.toFixed(3):'',r.intD!==null?r.intD:'',r.rate!==null?r.rate.toFixed(2):'',r.zone||''].join(','));}
+      var blob=new Blob([lines.join('\n')],{type:'text/csv'}),u=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=u;a.download='control-gasoil.csv';document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(u);
+    }
+
+    $('submitBtn').addEventListener('click',function(){
+      var date=$('mDate').value,lit=parseFloat($('mLit').value),cost=parseFloat($('mCost').value);
+      if(!date||!lit||lit<=0){showNotice('Rellena al menos fecha y litros.','error');return;}
+      addE(date,lit,isNaN(cost)?null:cost);closeM();showNotice('Recarga registrada','ok');
+    });
+    $('resetBtn').addEventListener('click',function(){if(!confirm('\u00bfBorrar todo?'))return;entries=[];render();save();});
+    $('csvBtn').addEventListener('click',exportCsv);
+
+    render();
+    load();
+  }
+})();
+</script>
+</body>
+</html>
