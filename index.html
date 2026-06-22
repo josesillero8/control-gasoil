@@ -8,9 +8,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:'Inter',sans-serif;background:#f4f1ec;color:#2c2720;-webkit-font-smoothing:antialiased;}
-.app{max-width:880px;margin:0 auto;padding:0 0 40px;}
+.app{max-width:900px;margin:0 auto;padding:0 0 40px;}
 
-/* SETUP */
 .setup{max-width:560px;margin:60px auto;padding:0 20px;}
 .setup h1{font-family:'Oswald',sans-serif;font-size:28px;text-transform:uppercase;margin-bottom:6px;}
 .setup .sub{color:#6b6358;font-size:14px;margin-bottom:28px;line-height:1.6;}
@@ -25,7 +24,6 @@ body{font-family:'Inter',sans-serif;background:#f4f1ec;color:#2c2720;-webkit-fon
 .setup .go-btn:hover{background:#a87218;}
 .setup .err{color:#b5391e;font-size:13px;margin-top:8px;display:none;}
 
-/* HEADER */
 .header{padding:24px 20px 0;}
 .eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#c0841a;margin-bottom:6px;}
 .title-row{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
@@ -47,20 +45,40 @@ body{font-family:'Inter',sans-serif;background:#f4f1ec;color:#2c2720;-webkit-fon
 .panel{background:#fff;border:1px solid #ddd7cd;border-radius:6px;padding:20px;margin-bottom:16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .panel-label{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9a9285;margin-bottom:14px;}
 
+/* TANKS */
+.tanks-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;}
+.tank{width:120px;text-align:center;}
+.tank-label{font-family:'Oswald',sans-serif;font-size:13px;text-transform:uppercase;color:#6b6358;margin-bottom:8px;letter-spacing:.03em;}
+.tank-body{width:100px;height:140px;margin:0 auto;border:3px solid #bbb4a6;border-radius:4px 4px 8px 8px;position:relative;overflow:hidden;background:#e8e4dd;}
+.tank-body::before{content:'';position:absolute;top:-3px;left:15%;right:15%;height:6px;background:#bbb4a6;border-radius:3px 3px 0 0;}
+.tank-fill{position:absolute;bottom:0;left:0;right:0;transition:height .6s ease,background .4s;}
+.tank-pct{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:18px;margin-top:10px;color:#2c2720;}
+.tank-liters{font-family:'JetBrains Mono',monospace;font-size:11px;color:#9a9285;}
+
+.countdown-row{display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-top:4px;}
+.countdown-card{text-align:center;padding:14px 20px;min-width:160px;}
+.countdown-num{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:32px;}
+.countdown-num.ok{color:#2e7d6e;}
+.countdown-num.warn{color:#c0841a;}
+.countdown-num.crit{color:#b5391e;}
+.countdown-label{font-size:11px;color:#9a9285;margin-top:4px;}
+.countdown-sub{font-family:'JetBrains Mono',monospace;font-size:13px;color:#6b6358;margin-top:2px;}
+
+/* GAUGE */
 .gauge-wrap{display:flex;justify-content:center;}
-.gauge-wrap svg{width:100%;max-width:320px;height:auto;}
+.gauge-wrap svg{width:100%;max-width:280px;height:auto;}
 .zone-label{font-family:'JetBrains Mono',monospace;font-size:11px;fill:#9a9285;}
 .gauge-readout{text-align:center;margin-top:-6px;}
-.readout-value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:34px;}
-.readout-unit{font-size:12px;color:#6b6358;margin-top:-2px;}
-.readout-status{font-family:'Oswald',sans-serif;font-size:15px;text-transform:uppercase;letter-spacing:.03em;margin-top:10px;padding:6px 0;}
+.readout-value{font-family:'JetBrains Mono',monospace;font-weight:700;font-size:30px;}
+.readout-unit{font-size:11px;color:#6b6358;margin-top:-2px;}
+.readout-status{font-family:'Oswald',sans-serif;font-size:14px;text-transform:uppercase;letter-spacing:.03em;margin-top:8px;}
 .zone-normal{color:#2e7d6e;} .zone-alto{color:#b5391e;} .zone-bajo{color:#3e6f96;} .zone-wait{color:#9a9285;}
 
 .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
 .stat-card{background:#f9f7f4;border:1px solid #ddd7cd;border-radius:6px;padding:13px 14px;}
-.stat-num{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:19px;}
+.stat-num{font-family:'JetBrains Mono',monospace;font-weight:600;font-size:18px;}
 .stat-label{font-size:11px;color:#9a9285;margin-top:3px;}
-@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.stats{grid-template-columns:repeat(2,1fr);} .tanks-row{gap:10px;} .tank{width:75px;} .tank-body{width:65px;height:100px;}}
 
 .chart-scroll{overflow-x:auto;} .chart-empty{color:#9a9285;font-size:13px;padding:18px 4px;}
 
@@ -106,37 +124,21 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
 </head>
 <body>
 
-<!-- ========== SETUP SCREEN ========== -->
 <div class="setup" id="setupScreen">
   <h1>Control de Gasoil</h1>
-  <p class="sub">Para que los datos se guarden y se compartan, necesitas crear un almacén online gratuito. Solo hay que hacerlo una vez, son 30 segundos.</p>
-
-  <div class="step">
-    <div class="step-n">Paso 1</div>
-    <p>Abre este enlace en otra pestaña:<br><a href="https://www.npoint.io/" target="_blank">https://www.npoint.io</a></p>
-  </div>
-  <div class="step">
-    <div class="step-n">Paso 2</div>
-    <p>En el cuadro grande que aparece, borra todo y escribe solo: <code>[]</code><br>Luego pulsa el botón verde <strong>"Save"</strong>.</p>
-  </div>
-  <div class="step">
-    <div class="step-n">Paso 3</div>
-    <p>Te saldrá una dirección tipo: <code>https://api.npoint.io/abc123def456</code><br>Copia esa dirección completa y pégala aquí abajo:</p>
-  </div>
-
+  <p class="sub">Para que los datos se guarden y se compartan, necesitas crear un almacén online gratuito (solo una vez, 30 segundos).</p>
+  <div class="step"><div class="step-n">Paso 1</div><p>Abre <a href="https://www.npoint.io/" target="_blank">npoint.io</a></p></div>
+  <div class="step"><div class="step-n">Paso 2</div><p>Borra el contenido del cuadro, escribe <code>[]</code> y pulsa <strong>Create JSON Bin</strong>.</p></div>
+  <div class="step"><div class="step-n">Paso 3</div><p>Copia la dirección (tipo <code>https://api.npoint.io/abc123...</code>) y pégala aquí:</p></div>
   <input type="text" id="apiUrlInput" placeholder="https://api.npoint.io/tu-codigo-aqui">
-  <div class="err" id="setupErr">La dirección no parece correcta. Debe empezar por https://api.npoint.io/</div>
+  <div class="err" id="setupErr">Debe empezar por https://api.npoint.io/</div>
   <button type="button" class="go-btn" id="setupGo">Conectar y empezar</button>
 </div>
 
-<!-- ========== MAIN APP ========== -->
 <div class="app" id="mainApp" style="display:none;">
   <div class="header">
-    <p class="eyebrow">Almacén · Generador diésel</p>
-    <div class="title-row">
-      <h1 class="title">Control de gasoil</h1>
-      <span class="api-tag" id="apiTag"></span>
-    </div>
+    <p class="eyebrow">Almacén · Generador diésel · 4 bidones × 1.000 L</p>
+    <div class="title-row"><h1 class="title">Control de gasoil</h1><span class="api-tag" id="apiTag"></span></div>
   </div>
   <div class="tabs">
     <button class="tab active" data-tab="dashboard">Análisis</button>
@@ -146,12 +148,18 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
 
   <div class="tab-body active" data-tab="dashboard">
     <div class="top-bar">
-      <button type="button" class="add-btn" id="openModal">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="5" x2="9" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-        Nueva recarga
-      </button>
+      <button type="button" class="add-btn" id="openModal"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="8" stroke="currentColor" stroke-width="1.5"/><line x1="9" y1="5" x2="9" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="5" y1="9" x2="13" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg> Nueva recarga</button>
       <span class="save-status" id="saveStatus"></span>
     </div>
+
+    <!-- TANKS -->
+    <div class="panel">
+      <p class="panel-label">Nivel estimado de los depósitos</p>
+      <div class="tanks-row" id="tanksRow"></div>
+      <div class="countdown-row" id="countdownRow"></div>
+    </div>
+
+    <!-- GAUGE -->
     <div class="panel">
       <p class="panel-label">Estado de consumo</p>
       <div class="gauge-wrap">
@@ -173,6 +181,7 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
         <div class="readout-status zone-wait" id="readoutStatus">Registra recargas para empezar</div>
       </div>
     </div>
+
     <div class="panel"><p class="panel-label">Consumo</p><div class="stats">
       <div class="stat-card"><div class="stat-num" id="sTotal">0 L</div><div class="stat-label">Litros registrados</div></div>
       <div class="stat-card"><div class="stat-num" id="sCount">0</div><div class="stat-label">Recargas</div></div>
@@ -191,7 +200,7 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
       <p class="panel-label">Registro completo</p>
       <div class="table-scroll"><table id="tbl"><thead><tr><th>#</th><th>Fecha</th><th>Litros</th><th>Coste €</th><th>€/L</th><th>Intervalo</th><th>Consumo</th><th>Estado</th><th></th></tr></thead><tbody id="tbody"></tbody></table></div>
       <div id="emptyLog" class="empty">Aún no hay recargas.</div>
-      <p class="hint">Edita fecha, litros o coste directamente en la tabla. Se guarda automáticamente.</p>
+      <p class="hint">Edita fecha, litros o coste directamente. Se guarda automáticamente.</p>
       <div class="footer-row">
         <button type="button" class="link-btn" id="csvBtn">Exportar CSV</button>
         <button type="button" class="link-btn" id="resetBtn" style="color:#b5391e;">Borrar todo</button>
@@ -215,61 +224,32 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
 
 <script>
 (function(){
-  var API_URL = '';
-  var entries = [];
-  var BZ = 0.75;
+  var API_URL='',entries=[],BZ=0.75,TOTAL_CAP=4000,NUM_TANKS=4,TANK_CAP=1000;
   var $=function(id){return document.getElementById(id);};
 
-  /* ===== SETUP ===== */
-  function getHashApi(){
-    var h=location.hash;
-    var m=h.match(/api=([^&]+)/);
-    return m?decodeURIComponent(m[1]):'';
-  }
-  function setHashApi(url){
-    location.hash='api='+encodeURIComponent(url);
-  }
-
-  var setupUrl = getHashApi();
-  if(setupUrl && setupUrl.indexOf('https://api.npoint.io/')===0){
-    API_URL = setupUrl;
-    startApp();
-  } else {
-    $('setupScreen').style.display = 'block';
-  }
-
+  /* SETUP */
+  function getHashApi(){var m=location.hash.match(/api=([^&]+)/);return m?decodeURIComponent(m[1]):'';}
+  function setHashApi(u){location.hash='api='+encodeURIComponent(u);}
+  var su=getHashApi();
+  if(su&&su.indexOf('https://api.npoint.io/')===0){API_URL=su;startApp();}
+  else{$('setupScreen').style.display='block';}
   $('setupGo').addEventListener('click',function(){
-    var val = $('apiUrlInput').value.trim();
-    if(val.indexOf('https://api.npoint.io/')!==0 || val.length < 30){
-      $('setupErr').style.display='block'; return;
-    }
-    $('setupErr').style.display='none';
-    API_URL = val;
-    setHashApi(val);
-    startApp();
+    var v=$('apiUrlInput').value.trim();
+    if(v.indexOf('https://api.npoint.io/')!==0||v.length<30){$('setupErr').style.display='block';return;}
+    $('setupErr').style.display='none';API_URL=v;setHashApi(v);startApp();
   });
+  function startApp(){$('setupScreen').style.display='none';$('mainApp').style.display='block';$('apiTag').textContent='\u2713 Conectado';initApp();}
 
-  function startApp(){
-    $('setupScreen').style.display='none';
-    $('mainApp').style.display='block';
-    $('apiTag').textContent='Conectado';
-    initApp();
-  }
-
-  /* ===== APP ===== */
   function initApp(){
-    // Tabs
     var tabs=document.querySelectorAll('.tab'),bods=document.querySelectorAll('.tab-body');
     for(var t=0;t<tabs.length;t++){(function(tb){tb.addEventListener('click',function(){
       for(var i=0;i<tabs.length;i++){tabs[i].classList.toggle('active',tabs[i]===tb);bods[i].classList.toggle('active',bods[i].getAttribute('data-tab')===tb.getAttribute('data-tab'));bods[i].style.display=bods[i].classList.contains('active')?'block':'none';}
     });})(tabs[t]);}
 
-    // Modal
     function todayStr(){var d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
     function openM(){$('mDate').value=todayStr();$('mLit').value='';$('mCost').value='';$('overlay').classList.add('open');setTimeout(function(){$('mLit').focus();},80);}
     function closeM(){$('overlay').classList.remove('open');}
-    $('openModal').addEventListener('click',openM);
-    $('closeModal').addEventListener('click',closeM);
+    $('openModal').addEventListener('click',openM);$('closeModal').addEventListener('click',closeM);
     $('overlay').addEventListener('click',function(e){if(e.target===$('overlay'))closeM();});
 
     var nT=null;
@@ -299,6 +279,44 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
       return{rows:rows,mean:mean,std:std,totalL:tL,totalC:tC,hasCosts:cc>0,avgCost:cc>0?tC/cc:null,avgEurL:tLwc>0?tC/tLwc:null,reliable:rates.length>=2};
     }
 
+    /* TANKS */
+    function renderTanks(c){
+      var tr=$('tanksRow'),cr=$('countdownRow');
+      if(!c.rows.length||c.mean===null){
+        tr.innerHTML='<div style="text-align:center;color:#9a9285;padding:20px;width:100%;">Añade recargas para ver el nivel estimado de los bidones.</div>';
+        cr.innerHTML='';return;
+      }
+      var last=c.rows[c.rows.length-1];
+      var daysSince=dayD(last.date,todayStr());
+      if(daysSince<0)daysSince=0;
+      var used=c.mean*daysSince;
+      var remaining=Math.max(0,TOTAL_CAP-used);
+      var daysLeft=c.mean>0?Math.floor(remaining/c.mean):999;
+      var nextDate=new Date();nextDate.setDate(nextDate.getDate()+daysLeft);
+      var nextStr=String(nextDate.getDate()).padStart(2,'0')+'/'+String(nextDate.getMonth()+1).padStart(2,'0')+'/'+nextDate.getFullYear();
+
+      var html='';
+      for(var i=0;i<NUM_TANKS;i++){
+        var tankMin=i*TANK_CAP;
+        var tankLevel=Math.max(0,Math.min(TANK_CAP,remaining-tankMin));
+        var pct=Math.round((tankLevel/TANK_CAP)*100);
+        var color=pct>50?'#2e7d6e':pct>20?'#c0841a':'#b5391e';
+        html+='<div class="tank">';
+        html+='<div class="tank-label">Bidón '+(i+1)+'</div>';
+        html+='<div class="tank-body"><div class="tank-fill" style="height:'+pct+'%;background:'+color+';"></div></div>';
+        html+='<div class="tank-pct">'+pct+'%</div>';
+        html+='<div class="tank-liters">~'+Math.round(tankLevel)+' L</div>';
+        html+='</div>';
+      }
+      tr.innerHTML=html;
+
+      var totalPct=Math.round((remaining/TOTAL_CAP)*100);
+      var cls=daysLeft>10?'ok':daysLeft>4?'warn':'crit';
+      cr.innerHTML=''+
+        '<div class="countdown-card"><div class="countdown-num '+cls+'">'+Math.round(remaining)+' L</div><div class="countdown-label">Gasoil estimado restante</div><div class="countdown-sub">'+totalPct+'% de '+TOTAL_CAP+' L</div></div>'+
+        '<div class="countdown-card"><div class="countdown-num '+cls+'">'+daysLeft+' d</div><div class="countdown-label">Días hasta vacío (estimado)</div><div class="countdown-sub">Próxima recarga: '+nextStr+'</div></div>';
+    }
+
     function render(){
       var c=compute(),rows=c.rows;
       $('sTotal').textContent=c.totalL.toFixed(1).replace(/\.0$/,'')+' L';
@@ -315,7 +333,7 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
       $('needle').setAttribute('transform','rotate('+deg+' 170 170)');
       $('readoutStatus').textContent=zone?zTx(zone):(entries.length===0?'Registra recargas para empezar':'Necesitas m\u00e1s recargas');
       $('readoutStatus').className='readout-status zone-'+(zone||'wait');
-      renderChart(c);renderTable(rows);
+      renderTanks(c);renderChart(c);renderTable(rows);
     }
 
     function renderChart(c){
@@ -342,7 +360,6 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
       else if(field==='cost'){var cv=parseFloat(val);if(isNaN(cv)||cv<=0)delete e.cost;else e.cost=cv;}
       render();save();
     }
-
     function renderTable(rows){
       if(!rows.length){$('tbl').style.display='none';$('emptyLog').style.display='block';return;}
       $('tbl').style.display='';$('emptyLog').style.display='none';var html='';
@@ -363,23 +380,18 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
       for(var d=0;d<btns.length;d++){(function(btn){btn.addEventListener('click',function(){deleteE(btn.getAttribute('data-id'));});})(btns[d]);}
     }
 
-    /* === API === */
+    /* API */
     function save(){
       setSt('Guardando...');
       fetch(API_URL,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entries)})
       .then(function(r){if(!r.ok)throw new Error();return r.json();})
       .then(function(){setSt('\u2713 Guardado ('+entries.length+')');})
-      .catch(function(){setSt('\u26a0 Error al guardar — reintentando...');setTimeout(save,3000);});
+      .catch(function(){setSt('\u26a0 Error \u2014 reintentando...');setTimeout(save,3000);});
     }
     function load(){
-      setSt('Cargando datos...');
-      fetch(API_URL)
-      .then(function(r){if(!r.ok)throw new Error();return r.json();})
-      .then(function(data){
-        if(Array.isArray(data)){entries=data;setSt('\u2713 '+entries.length+' registros');}
-        else{entries=[];setSt('Sin registros');}
-        render();
-      })
+      setSt('Cargando...');
+      fetch(API_URL).then(function(r){if(!r.ok)throw new Error();return r.json();})
+      .then(function(data){if(Array.isArray(data)){entries=data;setSt('\u2713 '+entries.length+' registros');}else{entries=[];setSt('Sin registros');}render();})
       .catch(function(){setSt('\u26a0 Error al cargar');render();});
     }
 
@@ -388,7 +400,6 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
       if(cost&&cost>0)e.cost=cost;entries.push(e);render();save();
     }
     function deleteE(id){var n=[];for(var i=0;i<entries.length;i++)if(entries[i].id!==id)n.push(entries[i]);entries=n;render();save();}
-
     function exportCsv(){
       var c=compute(),lines=['numero,fecha,litros,coste_eur,eur_litro,intervalo_dias,consumo_l_dia,estado'];
       for(var i=0;i<c.rows.length;i++){var r=c.rows[i];lines.push([r.idx,r.date,r.liters,r.cost!==null?r.cost.toFixed(2):'',r.ppl!==null?r.ppl.toFixed(3):'',r.intD!==null?r.intD:'',r.rate!==null?r.rate.toFixed(2):'',r.zone||''].join(','));}
@@ -403,9 +414,7 @@ td input.cell:focus{border-color:#c0841a;background:#fff;outline:none;}
     });
     $('resetBtn').addEventListener('click',function(){if(!confirm('\u00bfBorrar todo?'))return;entries=[];render();save();});
     $('csvBtn').addEventListener('click',exportCsv);
-
-    render();
-    load();
+    render();load();
   }
 })();
 </script>
